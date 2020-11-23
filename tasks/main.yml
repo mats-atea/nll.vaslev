@@ -1,0 +1,65 @@
+---
+# tasks file for nll.vaslev
+- name: Check that variables are set
+  fail:
+    msg: Variables must be set in defaults/main.yml
+  when: ( vcenter_hostname == "CHANGEME" ) or
+        ( vcenter_username == "CHANGEME" ) or
+        ( vcenter_password == "CHANGEME" ) or
+        ( datacenter_name == "CHANGEME")
+
+- name: Bekräfta leverans
+  pause:
+    prompt: Bekräfta att alla hostar flytter till hall {{ hall }} och leverans påbörjas (y/n)
+  register: confirm
+  failed_when: '"y" not in confirm.user_input'
+
+- name: Migrera hostar till rätt server
+  community.vmware.vmware_vmotion:
+    hostname: '{{ vcenter_hostname }}'
+    username: '{{ vcenter_username }}'
+    password: '{{ vcenter_password }}'
+    vm_name: '{{ ansible_fqdn }}'
+    destination_host: '{{ vcenter_dest }}'
+    validate_certs: false
+  delegate_to: localhost
+  register: migrate
+
+- name: Skriv ut på vilken host vm körs
+  debug:
+    msg: '{{ ansible_fqdn }} körs på {{ migrate.running_host }}'
+
+- name: Hitta katalog i vmware
+  vmware_guest_info:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: no
+    datacenter: "{{ datacenter_name }}"
+    name: "{{ ansible_fqdn }}"
+    schema: "vsphere"
+  register: vm_info
+  delegate_to: localhost
+
+- name: Create snapshot
+  vmware_guest_snapshot:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ datacenter_name }}"
+    name: "{{ ansible_fqdn }}"
+    state: present
+    folder: "{{ vm_info.instance.parent }}"
+    validate_certs: false
+    snapshot_name: "VAS leverans {{ ansible_date_time.date }}"
+    description: snap från Ansible
+  delegate_to: localhost
+
+- name: Uppdatera alla packet
+  yum:
+    name: '*'
+    state: latest
+
+- name: Starta om host
+  reboot:
+

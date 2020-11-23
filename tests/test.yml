@@ -1,0 +1,10 @@
+---
+- name: Migrera till annan hall och kör leverans
+  hosts: all
+  vars_prompt:
+    - name: hall
+      prompt: Vilkern hall? (a/b)
+      private: false
+  roles:
+    - nll.vaslev
+

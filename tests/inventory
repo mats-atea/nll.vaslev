@@ -1,0 +1,6 @@
+[VASAPP]
+saltminion2.nll.se vcenter_dest_a=esxi04.nll.se vcenter_dest_b=esxi02.nll.se
+saltminion3.nll.se vcenter_dest_a=esxi02.nll.se vcenter_dest_b=esxi04.nll.se
+[VASDB]
+saltminion4.nll.se vcenter_dest_a=esxi04.nll.se vcenter_dest_b=esxi02.nll.se
+saltminion1.nll.se vcenter_dest_a=esxi02.nll.se vcenter_dest_b=esxi04.nll.se

@@ -1,0 +1,5 @@
+---
+# vars file for nll.vaslev
+vcenter_hall: "{{ lookup('varnames', '^vcenter_dest_[hall]') }}"
+vcenter_dest: "{{ lookup('vars', 'vcenter_dest_' + hall) }}"
+
