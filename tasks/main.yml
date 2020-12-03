@@ -7,13 +7,11 @@
         ( vcenter_username == "CHANGEME" ) or
         ( vcenter_password == "CHANGEME" ) or
         ( datacenter_name == "CHANGEME")
-
 - name: Bekräfta leverans
   pause:
     prompt: Bekräfta att alla hostar flytter till hall {{ hall }} och leverans påbörjas (y/n)
   register: confirm
   failed_when: '"y" not in confirm.user_input'
-
 - name: Migrera hostar till rätt server
   community.vmware.vmware_vmotion:
     hostname: '{{ vcenter_hostname }}'
@@ -24,11 +22,9 @@
     validate_certs: false
   delegate_to: localhost
   register: migrate
-
 - name: Skriv ut på vilken host vm körs
   debug:
     msg: '{{ ansible_fqdn }} körs på {{ migrate.running_host }}'
-
 - name: Hitta katalog i vmware
   vmware_guest_info:
     hostname: "{{ vcenter_hostname }}"
@@ -40,7 +36,6 @@
     schema: "vsphere"
   register: vm_info
   delegate_to: localhost
-
 - name: Create snapshot
   vmware_guest_snapshot:
     hostname: "{{ vcenter_hostname }}"
@@ -54,12 +49,9 @@
     snapshot_name: "VAS leverans {{ ansible_date_time.date }}"
     description: snap från Ansible
   delegate_to: localhost
-
 - name: Uppdatera alla packet
   yum:
     name: '*'
     state: latest
-
 - name: Starta om host
   reboot:
-
